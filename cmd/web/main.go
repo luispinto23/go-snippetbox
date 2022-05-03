@@ -7,6 +7,12 @@ import (
 	"os"
 )
 
+// Application struct to hold the dependencies for the web application
+type application struct {
+	errorLog *log.Logger
+	infoLog  *log.Logger
+}
+
 func main() {
 	// Define a new command line flag with the name 'addr' and a default value of ':4000'. Also add a simple description of what the flag does.
 	addr := flag.String("addr", ":4000", "HTTP network address")
@@ -20,10 +26,16 @@ func main() {
 	// Create a new logger to write error messages to the console (STDERR).
 	errorLog := log.New(os.Stderr, "ERROR\t", log.Ldate|log.Ltime|log.Lshortfile)
 
+	// Create a new application struct and pass in the two loggers.
+	app := &application{
+		errorLog: errorLog,
+		infoLog:  infoLog,
+	}
+
 	mux := http.NewServeMux()
-	mux.HandleFunc("/", home)
-	mux.HandleFunc("/snippet", showSnippet)
-	mux.HandleFunc("/snippet/create", createSnippet)
+	mux.HandleFunc("/", app.home)
+	mux.HandleFunc("/snippet", app.showSnippet)
+	mux.HandleFunc("/snippet/create", app.createSnippet)
 
 	// Create a file server which serves files out of the "./ui/static" directory.
 	// Note that the path given to the http.Dir function is relative to the project
