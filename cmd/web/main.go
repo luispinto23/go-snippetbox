@@ -1,11 +1,18 @@
 package main
 
 import (
+	"flag"
 	"log"
 	"net/http"
 )
 
 func main() {
+	// Define a new command line flag with the name 'addr' and a default value of ':4000'. Also add a simple description of what the flag does.
+	addr := flag.String("addr", ":4000", "HTTP network address")
+
+	// Parse the command line flags.
+	flag.Parse()
+
 	mux := http.NewServeMux()
 	mux.HandleFunc("/", home)
 	mux.HandleFunc("/snippet", showSnippet)
@@ -21,7 +28,7 @@ func main() {
 	// "/static" prefix before the request reaches the file server.
 	mux.Handle("/static/", http.StripPrefix("/static", fileServer))
 
-	log.Println("Starting server on port 4000")
-	err := http.ListenAndServe(":4000", mux)
+	log.Printf("Starting server on port %s", *addr)
+	err := http.ListenAndServe(*addr, mux)
 	log.Fatal(err)
 }
